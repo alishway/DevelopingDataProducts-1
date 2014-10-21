@@ -1,0 +1,179 @@
+---
+title: "Exploration DataProducts ShinyProject"
+author: "Sep"
+date: "Friday, October 17, 2014"
+output: html_document
+---
+
+# Exploration DataProducts ShinyProject
+## For Developing Data Products - 17/10/2014
+## Author "Sep"
+
+
+# The general plan
+
+## The Initial ideas
+
+* Interactive fractal generation
+* Some form of ODE systems - predator/prey maybe?
+* Game theory project - prisoners dilema?
+* percolalltion and forest fires <-- could be a real treat!
+* Interactive statistics - plotting distributions
+* Black Jack simulator?
+* Interactive statistics - Using the General Social Survey Data 1972-2012 [Pick this]
+
+
+## Why pick the given project?
+
+* Good to get more experience working with data, will overlap with some of the 
+other courses that I'm currently taking.
+* I've already done most of the other projects in different languages.
+* I want to know more about the given data!!
+
+## Need Data?
+
+Yes. The data I'm going to use is from the [ICPSR](http://www.icpsr.umich.edu/icpsrweb/ICPSR/studies/34802/version/1)
+Here is [a link to the codebook](http://www.icpsr.umich.edu/cgi-bin/file?comp=none&study=34802&ds=1&file_id=1136502&path=ICPSR)
+
+The data is on the large side, as such it will need cutting.
+
+I'll be starting off with a cleaned data set - from another [Duke Uni] course I've been taking, I will however need to cut the 
+data down even further so that it can be easily uploaded for use in the shiny app.
+
+## Aim <span style="color:green">$\checkmark$</span>
+
+Make a shiny app! Want to have a drop menus for 
+
+* Plot type 
+* variables of interest i.e Var 1 against Var 2 or Var 3 againsts Var 1 etc..
+    * This will need a selection process for number of variables user is interested in
+    if two vars you can have these plots.
+    * sub section plotting? how about splitting plots by group depending on the users vars of interest?
+    * something like: if box plot make subsectioning available?
+* I want check box that when turned on outputs a summary of the chosen data cut by groupings.
+
+
+## Prelim todos (and don'ts)
+
+Philosophy for the project: Keep it small, high quality and interesting. Think 2 mins of use by an average user.
+
+* explore the data and ID vars of interest.
+    * keep the number of vars modest! This is a proof of concept not a full flashy product.
+* produce a smaller data set for the purpose of this shiny app.
+* Make a small map of what the UI should look like and what I want the user to see exactly
+* Get the shiny app running locally
+* Add documentation 
+* Upload to github
+* get a pitch presentation together about the app 5 slides.
+    
+
+# Some exploration of the data
+
+Start by loading up the Duke cleaned gss data
+
+```{r}
+load("../data/statistics-project-gss.Rdata")
+names(gss)
+```
+
+
+From the names, there are few that look interesting for analysis
+* year
+* age
+* sex
+* edu
+* coninc
+* religion
+
+## subsetting the data
+
+Make a data table with dplyr
+
+```{r}
+library(dplyr)
+gsstbl <- tbl_df(gss[,c("year", "age", "sex", "educ","degree", "coninc", "relig")])
+```
+
+Have a look at the structure and summary of the data
+
+```{r}
+str(gsstbl)
+summary(gsstbl)
+```
+
+
+## pairs plotting
+
+Have a look at scatter plot pairing the data. As a note the pairs function can take some time
+so instead take a random sample from our table
+
+```{r}
+num_rand_rows <- 1000 # randomly sample this many rows
+gsstbl %>% sample_n(size=num_rand_rows) %>% pairs
+```
+
+
+## Look at some histograms of interest concerning income/gender
+
+A barplot of the highest degree achieved
+
+```{r}
+## Alternative to dplyr piping
+# barplot( table(gsstbl$degree) )
+
+gsstbl %>% select(degree) %>% table %>% barplot
+```
+
+Bar plot of average family income by highest degree
+
+```{r}
+library(ggplot2)
+gsstbl %>%
+        group_by(degree) %>%
+        summarize(meanFamilyIncome=mean(coninc,na.rm=TRUE)) %>%
+        ggplot(aes(x=degree,y=meanFamilyIncome,fill=degree)) + 
+        geom_bar(stat="identity") + 
+        labs(title="Average income by highest form of education")
+```
+
+
+Q: how has the average family income changed over the years based on your degree
+
+```{r}
+gsstbl %>%
+    group_by(year,degree) %>%
+    summarize(meanInc=mean(coninc,na.rm=TRUE)) %>%
+    ggplot(aes(x=year,y=meanInc, group=degree,color=degree)) + 
+    geom_point() + 
+    geom_line() + 
+    labs(title="Change in time of average income grouped by degree")
+```
+
+Have a look at a facetted plot adding a linear model to the graphs
+
+```{r}
+gsstbl %>%
+    group_by(year,degree,sex) %>%
+    summarize(meanInc=mean(coninc,na.rm=TRUE)) %>%
+    ggplot(aes(x=year,y=meanInc,color=degree)) + 
+    geom_point() + 
+    geom_line() + 
+    facet_wrap(~degree, scales="free") +
+    geom_smooth(method="lm") +
+    labs(title="Change in time of average income grouped by degree with linear fit")
+```
+
+Have a look at the trend difference between men and women
+```{r}
+gsstbl %>%
+    group_by(year,degree,sex) %>%
+    summarize(meanInc=mean(coninc,na.rm=TRUE)) %>%
+    ggplot(aes(x=year,y=meanInc,color=sex, group=sex, color=sex)) + 
+    geom_point() + 
+    geom_line() + 
+    facet_wrap(~ degree, scales="free") +
+    geom_smooth(method="lm", se=FALSE) +
+    labs(title="Change in time of average income grouped by degree & gender with linear fit")
+```
+
+
