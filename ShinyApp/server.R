@@ -35,11 +35,11 @@ shinyServer(
         output$ogendergroup <- renderPrint({gendergroupoption()})
         
         # The variables and outputs concerning the go button
-        output$ogotext <- renderText({
-            if (input$igoButton == 0){"You haven't hit go!"}
-            else if (input$igoButton %% 2 == 1){"You've hit go an odd num of times"}
-            else if (input$igoButton %% 2 == 0){"You've hit go an even num of times"}
-        })
+#         output$ogotext <- renderText({
+#             if (input$igoButton == 0){"You haven't hit go!"}
+#             else if (input$igoButton %% 2 == 1){"You've hit go an odd num of times"}
+#             else if (input$igoButton %% 2 == 0){"You've hit go an even num of times"}
+#         })
         
         removeNAs <- reactive(input$iremoveNA)
         output$oremoveNA <- renderText({ 
@@ -184,7 +184,7 @@ shinyServer(
                             group_by(degree) %>% 
                             summarize(meanFamilyIncome=mean(coninc,na.rm=TRUE)) 
                     } #End else
-                ) # End Isolate
+                )# End Isolate
             } # End push button If
         }) # End osummarytext render DataTable
     

@@ -3,7 +3,7 @@
 
 library(shiny)
 shinyUI(pageWithSidebar(
-    headerPanel("Exploring Changes in Income and Education"),
+    headerPanel("Data Exploration: Income, Gender and Religion!"),
     sidebarPanel(
         h3('Data Options'),
         
@@ -25,7 +25,7 @@ shinyUI(pageWithSidebar(
                            label="Remove records with NA degree record",
                            c("Remove NA"=TRUE, "Keep NA"=FALSE)),
         
-        actionButton("igoButton","Get Summary!"),
+        actionButton("igoButton","Update Summary Table"),
         
         h4('The years of interest'),
         verbatimTextOutput("oyearstext"),
@@ -37,8 +37,6 @@ shinyUI(pageWithSidebar(
         h4('Gender Grouping'),
         verbatimTextOutput("ogendergroup"),
         
-        h4('The Go Button'),
-        verbatimTextOutput("ogotext"),
         
         h4('Remove NA degree records'),
         verbatimTextOutput("oremoveNA")
@@ -48,12 +46,9 @@ shinyUI(pageWithSidebar(
     
     mainPanel(
         
-        #h3('Illustrating outputs'),
-        
-        #h4('The first plot'),
-        
-        #plotOutput("oplot1")
         tabsetPanel(
+            tabPanel("Documentation",
+                     includeHTML("www/EducationIncomeSexReligionHelp.html")),
             tabPanel("Barplot",
                      plotOutput("oplot1"),
                      h4('Data Summary'),
@@ -64,6 +59,7 @@ shinyUI(pageWithSidebar(
             tabPanel("Box plot",plotOutput("oplot3"),
                      h4('Data Summary'),
                      dataTableOutput('osummarytext3'))
+            
         ) #tabsetPanel End 
     ) # mainPanel End
 ) # pagewithsidebar End
