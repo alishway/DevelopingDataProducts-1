@@ -3,7 +3,7 @@
 
 library(shiny)
 shinyUI(pageWithSidebar(
-    headerPanel("Data Exploration: Income, Gender and Religion!"),
+    headerPanel("Data Exploration: Income, Education, Gender and Religion!"),
     sidebarPanel(
         h3('Data Options'),
         
